@@ -23,7 +23,9 @@ classdef Connection < handle
         
         function disconnect(obj)
             message.type = 'disconnect';
-            obj.connection.write(message);
+            try %#ok<TRYNC>
+                obj.connection.write(message);
+            end
             obj.connection.close();
         end
         
@@ -55,6 +57,10 @@ classdef Connection < handle
         
         function d = getData(obj, key)
             d = obj.attachedData(key);
+        end
+        
+        function clearData(obj)
+            obj.attachedData = containers.Map();
         end
         
     end
