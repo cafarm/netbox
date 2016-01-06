@@ -6,6 +6,10 @@ classdef Server < handle
         eventReceivedFcn
     end
     
+    properties (Access = private)
+        stopRequested
+    end
+    
     methods
         
         function start(obj, port)
@@ -13,13 +17,29 @@ classdef Server < handle
                 port = 5678;
             end
             
+            obj.stopRequested = false;
+            
             listen = netbox.tcp.TcpListen(port);
             close = onCleanup(@()delete(listen));
             
-            while true
-                connection = netbox.Connection(listen.accept());
+            listen.setAcceptTimeout(10);
+            
+            while ~obj.stopRequested
+                try
+                    connection = netbox.Connection(listen.accept());
+                catch x
+                    if strcmp(x.identifier, 'TcpListen:AcceptTimeout')
+                        continue;
+                    else
+                        rethrow(x);
+                    end
+                end
                 obj.serve(connection);
             end
+        end
+        
+        function requestStop(obj)
+            obj.stopRequested = true;
         end
         
     end
@@ -30,9 +50,20 @@ classdef Server < handle
             if ~isempty(obj.clientConnectedFcn)
                 obj.clientConnectedFcn(connection);
             end
+            
+            connection.setReceiveTimeout(10);
                         
-            while true
-                message = connection.receiveMessage();
+            while ~obj.stopRequested
+                try
+                    message = connection.receiveMessage();
+                catch x
+                    if strcmp(x.identifier, 'Connection:ReceiveTimeout')
+                        continue;
+                    else
+                        rethrow(x);
+                    end
+                end
+                
                 if strcmp(message.type, 'disconnect')
                     break;
                 end

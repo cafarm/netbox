@@ -29,8 +29,20 @@ classdef Connection < handle
             obj.connection.write(message);
         end
         
+        function setReceiveTimeout(obj, t)
+            obj.connection.setReadTimeout(t);
+        end
+        
         function m = receiveMessage(obj)
-            m = obj.connection.read();
+            try
+                m = obj.connection.read();
+            catch x
+                if strcmp(x.identifier, 'TcpConnection:ReadTimeout')
+                    error('Connection:ReceiveTimeout', 'Receive timeout');
+                else
+                    rethrow(x);
+                end
+            end
         end
         
         function setData(obj, key, value)

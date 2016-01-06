@@ -12,27 +12,27 @@ classdef TcpListen < handle
             end
             
             obj.socket = java.net.ServerSocket(port);
-            obj.socket.setSoTimeout(10);
         end
         
         function delete(obj)
             obj.close();
         end
         
+        function setAcceptTimeout(obj, t)
+            obj.socket.setSoTimeout(t);
+        end
+        
         function connection = accept(obj)
-            connection = [];
-            while isempty(connection) && ~obj.socket.isClosed
-                try
-                    s = obj.socket.accept();
-                catch x
-                    if isa(x.ExceptionObject, 'java.net.SocketTimeoutException')
-                        continue;
-                    else
-                        error(char(x.ExceptionObject.getMessage()));
-                    end
-                end 
-                connection = netbox.tcp.TcpConnection(s);
-            end
+            try
+                s = obj.socket.accept();
+            catch x
+                if isa(x.ExceptionObject, 'java.net.SocketTimeoutException')
+                    error('TcpListen:AcceptTimeout', 'Accept timeout');
+                else
+                    error(char(x.ExceptionObject.getMessage()));
+                end
+            end 
+            connection = netbox.tcp.TcpConnection(s);
         end
         
         function close(obj)

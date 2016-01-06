@@ -81,7 +81,7 @@ classdef TcpConnection < handle
             start = tic;
             while in.available() == 0
                 if obj.readTimeout > 0 && toc(start) >= obj.readTimeout / 1e3
-                    error('Read timeout');
+                    error('TcpConnection:ReadTimeout', 'Read timeout');
                 end
             end
             
