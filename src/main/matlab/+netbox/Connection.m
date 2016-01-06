@@ -17,6 +17,10 @@ classdef Connection < handle
             obj.attachedData = containers.Map();
         end
         
+        function n = getHostName(obj)
+            n = obj.connection.getHostName();
+        end
+        
         function disconnect(obj)
             message.type = 'disconnect';
             obj.connection.write(message);

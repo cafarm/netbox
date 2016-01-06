@@ -44,6 +44,10 @@ classdef TcpConnection < handle
             obj.socket.close();
         end
         
+        function n = getHostName(obj)
+            n = char(obj.socket.getInetAddress().getHostName());
+        end
+        
         % Sets read timeout in milliseconds. A timeout less than or equal to zero is considered infinite.
         function setReadTimeout(obj, t)
             obj.readTimeout = t;

@@ -4,6 +4,7 @@ classdef Server < handle
         clientConnectedFcn
         clientDisconnectedFcn
         eventReceivedFcn
+        interruptFcn
     end
     
     properties (Access = private)
@@ -29,6 +30,9 @@ classdef Server < handle
                     connection = netbox.Connection(listen.accept());
                 catch x
                     if strcmp(x.identifier, 'TcpListen:AcceptTimeout')
+                        if ~isempty(obj.interruptFcn)
+                            obj.interruptFcn();
+                        end
                         continue;
                     else
                         rethrow(x);
@@ -58,6 +62,9 @@ classdef Server < handle
                     message = connection.receiveMessage();
                 catch x
                     if strcmp(x.identifier, 'Connection:ReceiveTimeout')
+                        if ~isempty(obj.interruptFcn)
+                            obj.interruptFcn();
+                        end
                         continue;
                     else
                         rethrow(x);
