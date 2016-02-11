@@ -59,6 +59,10 @@ classdef Connection < handle
             d = obj.attachedData(key);
         end
         
+        function tf = isData(obj, key)
+            tf = obj.attachedData.isKey(key);
+        end
+        
         function clearData(obj)
             obj.attachedData = containers.Map();
         end
