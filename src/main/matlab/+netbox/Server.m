@@ -1,10 +1,10 @@
 classdef Server < handle
     
-    properties
-        clientConnectedFcn
-        clientDisconnectedFcn
-        eventReceivedFcn
-        interruptFcn
+    events
+        ClientConnected
+        ClientDisconnected
+        EventReceived
+        Interrupt
     end
     
     properties (Access = private)
@@ -30,9 +30,7 @@ classdef Server < handle
                     connection = netbox.Connection(listen.accept());
                 catch x
                     if strcmp(x.identifier, 'TcpListen:AcceptTimeout')
-                        if ~isempty(obj.interruptFcn)
-                            obj.interruptFcn();
-                        end
+                        notify(obj, 'Interrupt');
                         continue;
                     else
                         rethrow(x);
@@ -51,9 +49,7 @@ classdef Server < handle
     methods (Access = protected)
         
         function serve(obj, connection)
-            if ~isempty(obj.clientConnectedFcn)
-                obj.clientConnectedFcn(connection);
-            end
+            notify(obj, 'ClientConnected', netbox.NetEventData(connection));
             
             connection.setReceiveTimeout(10);
                         
@@ -62,9 +58,7 @@ classdef Server < handle
                     message = connection.receiveMessage();
                 catch x
                     if strcmp(x.identifier, 'Connection:ReceiveTimeout')
-                        if ~isempty(obj.interruptFcn)
-                            obj.interruptFcn();
-                        end
+                        notify(obj, 'Interrupt');
                         continue;
                     else
                         rethrow(x);
@@ -75,14 +69,10 @@ classdef Server < handle
                     break;
                 end
                 
-                if ~isempty(obj.eventReceivedFcn)
-                    obj.eventReceivedFcn(connection, message.event);
-                end
+                notify(obj, 'EventReceived', netbox.NetEventData(connection, message.event));
             end
             
-            if ~isempty(obj.clientDisconnectedFcn)
-                obj.clientDisconnectedFcn(connection);
-            end
+            notify(obj, 'ClientDisconnected', netbox.NetEventData(connection));
         end
         
     end

@@ -1,4 +1,4 @@
-classdef Event < handle
+classdef NetEvent < handle
     
     properties (SetAccess = private)
         name
@@ -7,7 +7,7 @@ classdef Event < handle
     
     methods
         
-        function obj = Event(name, arguments)
+        function obj = NetEvent(name, arguments)
             if nargin < 2
                 arguments = {};
             end
