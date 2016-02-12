@@ -59,6 +59,13 @@ classdef Connection < handle
             d = obj.attachedData(key);
         end
         
+        function removeData(obj, key)
+            if ~obj.isData(key)
+                return;
+            end
+            obj.attachedData.remove(key);
+        end
+        
         function tf = isData(obj, key)
             tf = obj.attachedData.isKey(key);
         end
