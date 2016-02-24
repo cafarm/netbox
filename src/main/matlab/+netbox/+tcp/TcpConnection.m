@@ -63,20 +63,16 @@ classdef TcpConnection < handle
                 rethrow(x);
             end
             
-            % Serialize
-            temp = [tempname '.mat'];
-            save(temp, 'varargin');
-            file = java.io.File(temp);
+            bytes = getByteStreamFromArray(varargin);
             
             try
-                stream.writeObject(java.nio.file.Files.readAllBytes(file.toPath));
+                stream.writeObject(bytes);
             catch x
                 if isa(x, 'matlab.exception.JavaException')
                     error(char(x.ExceptionObject.getMessage()));
                 end
                 rethrow(x);
             end
-            delete(temp);
         end
         
         function varargout = read(obj)
@@ -93,15 +89,7 @@ classdef TcpConnection < handle
             
             result = stream.readObject();
             
-            % Deserialize
-            temp = [tempname '.mat'];
-            fid = fopen(temp, 'w');
-            fwrite(fid, typecast(result, 'uint8'));
-            fclose(fid);
-            s = load(temp);
-            delete(temp);
-            
-            varargout = s.varargin;
+            varargout = getArrayFromByteStream(typecast(result, 'uint8'));
         end
         
     end
