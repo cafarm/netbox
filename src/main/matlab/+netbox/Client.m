@@ -1,5 +1,9 @@
 classdef Client < handle
     
+    properties (SetAccess = private)
+        isConnected
+    end
+    
     properties (Access = private)
         connection
     end
@@ -22,11 +26,15 @@ classdef Client < handle
         end
         
         function disconnect(obj)
-            if isempty(obj.connection)
+            if ~obj.isConnected
                 return;
             end
             obj.connection.disconnect();
             obj.connection = [];
+        end
+        
+        function tf = get.isConnected(obj)
+            tf = ~isempty(obj.connection);
         end
         
         function sendEvent(obj, event)
