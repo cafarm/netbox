@@ -28,8 +28,9 @@ classdef TcpConnection < handle
             obj.close();
         end
         
-        % Connects to the specified host ip on the specified port.
         function connect(obj, host, port)
+            % Connects to the specified host ip on the specified port.
+            
             addr = java.net.InetSocketAddress(host, port);
             timeout = 10000;
             
@@ -48,8 +49,9 @@ classdef TcpConnection < handle
             n = char(obj.socket.getInetAddress().getHostName());
         end
         
-        % Sets read timeout in milliseconds. A timeout less than or equal to zero is considered infinite.
         function setReadTimeout(obj, t)
+            % Sets read timeout in milliseconds. A timeout less than or equal to zero is considered infinite.
+            
             obj.readTimeout = t;
         end
         
